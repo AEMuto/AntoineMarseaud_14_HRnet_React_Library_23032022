@@ -1,13 +1,15 @@
 import React from 'react'
 
 type TableProps = {
-    data:{}
+    data: {
+        title: string
+    }
 }
 
-const Table = (props:TableProps) => {
+const Table = (props: TableProps) => {
     return (
         <table>
-            <th>Default Title</th>
+            <thead>{props.data.title}</thead>
         </table>
     )
 }
