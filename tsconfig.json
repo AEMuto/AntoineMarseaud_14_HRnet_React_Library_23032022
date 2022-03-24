@@ -106,5 +106,11 @@
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
     "emitDeclarationOnly": true
-  }
+  },
+  "exclude": [
+    "dist",
+    "node_modules",
+    "src/**/*.test.tsx",
+    "src/**/*.stories.tsx",
+  ]
 }
