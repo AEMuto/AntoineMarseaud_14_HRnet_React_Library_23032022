@@ -105,12 +105,13 @@
     "outDir": "dist",
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "resolveJsonModule": true
   },
   "exclude": [
     "dist",
     "node_modules",
-    "src/**/*.test.tsx",
-    "src/**/*.stories.tsx",
+    "**/*.test.tsx",
+    "**/*.stories.tsx",
   ]
 }
