@@ -1,3 +1,62 @@
+export type dataKey = {
+  title:string;
+  value:string;
+  position: number | undefined;
+}
+
+export const dataKeys: dataKey[] = [
+  {
+    title: 'UUID',
+    value: 'id',
+    position: undefined,
+  },
+  {
+    title: 'First Name',
+    value: 'firstName',
+    position: 0,
+  },
+  {
+    title: 'Last Name',
+    value: 'lastName',
+    position: 1,
+  },
+  {
+    title: 'Start Date',
+    value: 'startDate',
+    position: 2,
+  },
+  {
+    title: 'Department',
+    value: 'department',
+    position: 3,
+  },
+  {
+    title: 'Date of Birth',
+    value: 'dateOfBirth',
+    position: 4,
+  },
+  {
+    title: 'Street',
+    value: 'street',
+    position: 5,
+  },
+  {
+    title: 'City',
+    value: 'city',
+    position: 6,
+  },
+  {
+    title: 'State',
+    value: 'state',
+    position: 7,
+  },
+  {
+    title: 'Zip Code',
+    value: 'zipCode',
+    position: 8,
+  },
+];
+
 export const employees = [
   {
     id: '369710cb-bf45-4b9e-8891-227081c40b7f',
