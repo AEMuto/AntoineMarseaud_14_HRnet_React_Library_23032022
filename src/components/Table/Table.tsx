@@ -4,29 +4,33 @@ import { useEffect, useMemo, useState } from 'react';
 import Dropdown from '../Dropdown/Dropdown';
 import * as _ from 'lodash';
 import styled from 'styled-components';
+import sortObjectsArray from '../../utils/sortObjecsArray';
 
-type dataKey = {
+export type dataKey = {
   title: string;
   value: string;
   position: number | undefined;
 };
 
-type TablePropsOptions = {
+export type TablePropsOptions = {
   dataKeys?: dataKey[];
   heading?: string;
 };
 
-type data = Record<string, string | number>;
+export type data = Record<string, string | number>;
 
-type TableProps = {
+export type TableProps = {
   data: Array<data>;
   options?: TablePropsOptions;
 };
 
-// type ButtonProps = {
-//   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-// }
-
+/**
+ * Table component based on the datatable jquery plugin.
+ * TODO: Adding a 'sortingFunction' field to the options object ?
+ * @param data
+ * @param options
+ * @constructor
+ */
 const Table = ({ data = [], options }: TableProps) => {
   const defaultKeys = Object.keys(data[0]).map((key, index) => {
     return { title: key, value: key, position: index };
@@ -81,25 +85,29 @@ const Table = ({ data = [], options }: TableProps) => {
   };
 
   const handlePickPage = _.debounce((e: React.SyntheticEvent<EventTarget>) => {
-    if (!(e.target instanceof HTMLButtonElement)) {
-      return;
-    }
+    if (!(e.target instanceof HTMLButtonElement)) return;
     console.log(+e.target.innerHTML);
     setPageIndex(+e.target.innerHTML - 1);
   }, 50);
 
   const sortDescending = (e: React.SyntheticEvent<EventTarget>) => {
-    if (!(e.target instanceof HTMLButtonElement)) {
-      return;
-    }
-    console.log('Sort Descending', e.target.dataset.key);
+    if (!(e.target instanceof HTMLButtonElement)) return;
+    const key = e.target.dataset.key;
+    if (key === undefined) return;
+    console.log('Sort Descending by', key);
+    const tempData = [...data];
+    sortObjectsArray(tempData, key);
+    setSortedData(() => tempData);
   };
 
   const sortAscending = (e: React.SyntheticEvent<EventTarget>) => {
-    if (!(e.target instanceof HTMLButtonElement)) {
-      return;
-    }
+    if (!(e.target instanceof HTMLButtonElement)) return;
+    const key = e.target.dataset.key;
+    if (key === undefined) return;
     console.log('Sort Ascending', e.target.dataset.key);
+    const tempData = [...data];
+    sortObjectsArray(tempData, key, 'asc');
+    setSortedData(() => tempData);
   };
 
   const updateSearchInput = _.debounce((e) => {
@@ -224,7 +232,7 @@ const DataTable = styled.div`
     padding: 0;
     margin: 0;
   }
-  
+
   button {
     cursor: pointer;
   }
