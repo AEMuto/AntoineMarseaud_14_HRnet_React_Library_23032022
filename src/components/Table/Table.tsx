@@ -1,10 +1,10 @@
 import React from 'react';
-
 import { useEffect, useMemo, useState } from 'react';
 import Dropdown from '../Dropdown/Dropdown';
 import * as _ from 'lodash';
 import styled from 'styled-components';
 import sortObjectsArray from '../../utils/sortObjecsArray';
+import makeDictionary from "../../utils/makeDictionary";
 
 export type dataKey = {
   title: string;
@@ -32,6 +32,9 @@ export type TableProps = {
  * @constructor
  */
 const Table = ({ data = [], options }: TableProps) => {
+
+  console.log(makeDictionary(data))
+
   const defaultKeys = Object.keys(data[0]).map((key, index) => {
     return { title: key, value: key, position: index };
   });
@@ -48,22 +51,25 @@ const Table = ({ data = [], options }: TableProps) => {
     { value: 100, label: '100' },
   ];
 
-  const [sortedData, setSortedData] = useState(data);
+  // States for the current data, selected pagination and page index
+  const [currentData, setCurrentData] = useState(data);
   const [selectedPagination, setSelectedPagination] = useState(
     paginationOptions[0].value,
   );
   const [pageIndex, setPageIndex] = useState(0);
 
+  // Building our chunks of data depending on the selected pagination and sorted data
   const dataChunks = useMemo(
-    () => _.chunk(sortedData, selectedPagination),
-    [selectedPagination, sortedData],
+    () => _.chunk(currentData, selectedPagination),
+    [selectedPagination, currentData],
   );
-  //console.log(dataChunks);
-  const [currentData, setCurrentData] = useState(dataChunks[pageIndex]);
+
+  // States depending on the chunks of the data
+  const [displayedData, setDisplayedData] = useState(dataChunks[pageIndex]);
   const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
-    setCurrentData(dataChunks[pageIndex]);
+    setDisplayedData(dataChunks[pageIndex]);
   }, [dataChunks, pageIndex]);
 
   useEffect(() => {
@@ -73,20 +79,20 @@ const Table = ({ data = [], options }: TableProps) => {
   //console.log('Current data: ', currentData);
 
   const handleNextPage = () => {
-    console.log('Next');
+    //console.log('Next');
     if (pageIndex + 1 >= dataChunks.length) return;
     setPageIndex(pageIndex + 1);
   };
 
   const handlePrevPage = () => {
-    console.log('Previous');
+    //console.log('Previous');
     if (pageIndex - 1 < 0) return;
     setPageIndex(pageIndex - 1);
   };
 
   const handlePickPage = _.debounce((e: React.SyntheticEvent<EventTarget>) => {
     if (!(e.target instanceof HTMLButtonElement)) return;
-    console.log(+e.target.innerHTML);
+    //console.log(+e.target.innerHTML);
     setPageIndex(+e.target.innerHTML - 1);
   }, 50);
 
@@ -94,20 +100,20 @@ const Table = ({ data = [], options }: TableProps) => {
     if (!(e.target instanceof HTMLButtonElement)) return;
     const key = e.target.dataset.key;
     if (key === undefined) return;
-    console.log('Sort Descending by', key);
+    //console.log('Sort Descending by', key);
     const tempData = [...data];
     sortObjectsArray(tempData, key);
-    setSortedData(() => tempData);
+    setCurrentData(() => tempData);
   };
 
   const sortAscending = (e: React.SyntheticEvent<EventTarget>) => {
     if (!(e.target instanceof HTMLButtonElement)) return;
     const key = e.target.dataset.key;
     if (key === undefined) return;
-    console.log('Sort Ascending', e.target.dataset.key);
+    //console.log('Sort Ascending', e.target.dataset.key);
     const tempData = [...data];
     sortObjectsArray(tempData, key, 'asc');
-    setSortedData(() => tempData);
+    setCurrentData(() => tempData);
   };
 
   const updateSearchInput = _.debounce((e) => {
@@ -159,7 +165,7 @@ const Table = ({ data = [], options }: TableProps) => {
           </tr>
         </thead>
         <tbody>
-          {currentData.map((obj, index) => {
+          {displayedData.map((obj, index) => {
             return <Row key={`tr-${index}`} data={obj} dataKeys={dataKeys} />;
           })}
         </tbody>
@@ -167,8 +173,8 @@ const Table = ({ data = [], options }: TableProps) => {
       <div className="datatable__info">
         <p>
           Showing{' '}
-          {currentData.length * (pageIndex + 1) - currentData.length + 1} to{' '}
-          {currentData.length * (pageIndex + 1)} of {data.length} entries
+          {displayedData.length * (pageIndex + 1) - displayedData.length + 1} to{' '}
+          {displayedData.length * (pageIndex + 1)} of {data.length} entries
         </p>
       </div>
       <div className="datatable__page-nav">

@@ -1,18 +1,15 @@
 import { data } from '../components/Table/Table';
 import removeDiacritics from './removeDiacritics';
+import patterns from './patterns';
 
-const datePattern = new RegExp(
-  /[0-9]{2,}\/[0-9]{2,}\/[0-9]{2,}|[0-9]{2,}-[0-9]{2,}-[0-9]{2,}/,
-);
-
-const onlyNumbersPattern = new RegExp(/^\d+$/);
+const { date: datePattern, onlyNumbers: onlyNumbersPattern } = patterns;
 
 const sortObjectsArray = (
   data: Array<data>,
   key: string,
   order: 'desc' | 'asc' = 'desc',
 ) => {
-  console.table(data);
+  //console.table(data);
   data.sort((prev, next) => {
     const prevField = prev[key];
     const nextField = next[key];
@@ -57,7 +54,7 @@ const sortObjectsArray = (
       );
     }
   });
-  console.table(data);
+  //console.table(data);
   return data;
 };
 
