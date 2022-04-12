@@ -1,10 +1,11 @@
 import { data } from '../components/Table/Table';
-import { fastQuicksort } from "./fastQuickSort";
+import { fastQuicksort } from './fastQuickSort';
 
-const searchPattern = /\p{L}{3,}|\d{3,}/ug
+const searchPattern = /\p{L}{3,}|\d{3,}/gu;
 
-function makeDictionary(data: Array<data>): Array<Record<any, any>> {
+function makeDictionary(data: Array<data>): string[][] {
   const result: Record<any, any> = {};
+  console.time('makeDictionary');
   data.forEach((obj, index) => {
     for (let key in obj) {
       if (key === 'id') continue;
@@ -14,13 +15,15 @@ function makeDictionary(data: Array<data>): Array<Record<any, any>> {
       if (terms !== null) {
         terms.forEach((term) => {
           !result[term]
-            ? result[term] = [obj.id] || [index]
+            ? (result[term] = [obj.id] || [index])
             : result[term].push(obj.id || index);
         });
       }
     }
   });
-  return fastQuicksort(Object.entries(result));
+  const dictionary = fastQuicksort(Object.entries(result));
+  console.timeEnd('makeDictionary');
+  return dictionary;
 }
 
 export default makeDictionary;

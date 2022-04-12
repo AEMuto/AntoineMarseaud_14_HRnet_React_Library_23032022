@@ -4,7 +4,9 @@ import Dropdown from '../Dropdown/Dropdown';
 import * as _ from 'lodash';
 import styled from 'styled-components';
 import sortObjectsArray from '../../utils/sortObjecsArray';
-import makeDictionary from "../../utils/makeDictionary";
+import makeDictionary from '../../utils/makeDictionary';
+import rangedBinarySearch from '../../utils/rangedBinarySearch';
+import removeDiacritics from '../../utils/removeDiacritics';
 
 export type dataKey = {
   title: string;
@@ -24,17 +26,8 @@ export type TableProps = {
   options?: TablePropsOptions;
 };
 
-/**
- * Table component based on the datatable jquery plugin.
- * TODO: Adding a 'sortingFunction' field to the options object ?
- * @param data
- * @param options
- * @constructor
- */
 const Table = ({ data = [], options }: TableProps) => {
-
-  console.log(makeDictionary(data))
-
+  // Default Values
   const defaultKeys = Object.keys(data[0]).map((key, index) => {
     return { title: key, value: key, position: index };
   });
@@ -57,23 +50,39 @@ const Table = ({ data = [], options }: TableProps) => {
     paginationOptions[0].value,
   );
   const [pageIndex, setPageIndex] = useState(0);
+  const [searchInput, setSearchInput] = useState('');
 
-  // Building our chunks of data depending on the selected pagination and sorted data
+  // Building our chunks of data depending on the selected pagination and current data
   const dataChunks = useMemo(
     () => _.chunk(currentData, selectedPagination),
     [selectedPagination, currentData],
   );
 
-  // States depending on the chunks of the data
+  // State depending on the chunks of the data
   const [displayedData, setDisplayedData] = useState(dataChunks[pageIndex]);
-  const [searchInput, setSearchInput] = useState('');
 
+  // Building the dictionary for the binary search
+  const dictionary = useMemo(() => {
+    if(!data.length) return
+    return makeDictionary(data)
+  },[]);
+
+  // Modify the displayed data whether the dataChunks changes (meaning a change in the selected pagination)
+  // or the pageIndex diminish or augment (meaning the user has clicked on the next|previous button or has
+  // clicked on a page number button).
   useEffect(() => {
     setDisplayedData(dataChunks[pageIndex]);
   }, [dataChunks, pageIndex]);
 
+  // Modify the displayed data when the input from the search field changes.
   useEffect(() => {
-    console.log(searchInput);
+    if (!dictionary || !searchInput) return;
+    const result = rangedBinarySearch(dictionary, searchInput);
+    const filteredData = data.filter((obj) => {
+      const id = `${obj.id}`;
+      return result.indexOf(id) > -1;
+    });
+    setCurrentData(filteredData);
   }, [searchInput]);
 
   //console.log('Current data: ', currentData);
@@ -117,9 +126,15 @@ const Table = ({ data = [], options }: TableProps) => {
   };
 
   const updateSearchInput = _.debounce((e) => {
+    if (!e.target.value.length) {
+      setCurrentData(data);
+      return;
+    }
     if (e.target.value.length < 3) return;
-    setSearchInput(e.target.value);
+    setSearchInput(removeDiacritics(e.target.value.toLowerCase()));
   }, 500);
+
+  //if (!displayedData) return <p>No data to display!</p>
 
   return (
     <DataTable>
@@ -165,7 +180,7 @@ const Table = ({ data = [], options }: TableProps) => {
           </tr>
         </thead>
         <tbody>
-          {displayedData.map((obj, index) => {
+          {displayedData && displayedData.map((obj, index) => {
             return <Row key={`tr-${index}`} data={obj} dataKeys={dataKeys} />;
           })}
         </tbody>
@@ -173,8 +188,9 @@ const Table = ({ data = [], options }: TableProps) => {
       <div className="datatable__info">
         <p>
           Showing{' '}
-          {displayedData.length * (pageIndex + 1) - displayedData.length + 1} to{' '}
-          {displayedData.length * (pageIndex + 1)} of {data.length} entries
+          {displayedData && displayedData.length * (pageIndex + 1) - displayedData.length + 1} to{' '}
+          {displayedData && displayedData.length * (pageIndex + 1)} of {currentData.length}{' '}
+          entries
         </p>
       </div>
       <div className="datatable__page-nav">
