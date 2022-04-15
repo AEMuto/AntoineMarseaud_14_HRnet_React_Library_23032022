@@ -1,58 +1,58 @@
-export type dataKey = {
+export type category = {
   title:string;
-  value:string;
+  key:string;
   position: number | undefined;
 }
 
-export const dataKeys: dataKey[] = [
+export const categories: category[] = [
   {
     title: 'UUID',
-    value: 'id',
+    key: 'id',
     position: undefined,
   },
   {
     title: 'First Name',
-    value: 'firstName',
+    key: 'firstName',
     position: 0,
   },
   {
     title: 'Last Name',
-    value: 'lastName',
+    key: 'lastName',
     position: 1,
   },
   {
     title: 'Start Date',
-    value: 'startDate',
+    key: 'startDate',
     position: 2,
   },
   {
     title: 'Department',
-    value: 'department',
+    key: 'department',
     position: 3,
   },
   {
     title: 'Date of Birth',
-    value: 'dateOfBirth',
+    key: 'dateOfBirth',
     position: 4,
   },
   {
     title: 'Street',
-    value: 'street',
+    key: 'street',
     position: 5,
   },
   {
     title: 'City',
-    value: 'city',
+    key: 'city',
     position: 6,
   },
   {
     title: 'State',
-    value: 'state',
+    key: 'state',
     position: 7,
   },
   {
     title: 'Zip Code',
-    value: 'zipCode',
+    key: 'zipCode',
     position: 8,
   },
 ];

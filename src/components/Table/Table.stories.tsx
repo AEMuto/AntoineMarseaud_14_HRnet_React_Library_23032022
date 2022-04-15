@@ -1,7 +1,7 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import Table from './Table';
-import { dataKeys, employees } from "../../mock/employees_50";
+import { categories, employees } from "../../mock/employees_50";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -20,6 +20,6 @@ TableExample.args = {
   data: employees,
   options: {
     heading: 'Employees',
-    dataKeys
+    categories
   }
 };

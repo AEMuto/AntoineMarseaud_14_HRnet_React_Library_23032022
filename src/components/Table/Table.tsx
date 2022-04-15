@@ -4,18 +4,18 @@ import Dropdown from '../Dropdown/Dropdown';
 import * as _ from 'lodash';
 import styled from 'styled-components';
 import sortObjectsArray from '../../utils/sortObjecsArray';
-import makeDictionary from '../../utils/makeDictionary';
+import Data from '../../utils/DataClass';
 import rangedBinarySearch from '../../utils/rangedBinarySearch';
 import removeDiacritics from '../../utils/removeDiacritics';
 
-export type dataKey = {
+export type category = {
   title: string;
-  value: string;
+  key: string;
   position: number | undefined;
 };
 
 export type TablePropsOptions = {
-  dataKeys?: dataKey[];
+  categories: category[];
   heading?: string;
   style?: CSSStyleDeclaration;
 };
@@ -32,15 +32,18 @@ type sort = (key: string, order: 'asc' | 'desc') => void;
 const Table = ({ data = [], options }: TableProps) => {
   /* DEFAULT VALUES ******************************************************************************/
 
-  const defaultKeys = Object.keys(data[0]).map((key, index) => {
-    return { title: key, value: key, position: index };
+  const defaultCategories = Object.keys(data[0]).map((key, index) => {
+    return { title: key, key, position: index };
   });
 
-  const defaultOptions = { heading: 'Data Table', dataKeys: defaultKeys };
+  const defaultOptions = {
+    heading: 'Data Table',
+    categories: defaultCategories,
+  };
 
   const {
     heading = defaultOptions.heading,
-    dataKeys = defaultOptions.dataKeys,
+    categories = defaultOptions.categories,
   } = options ? options : defaultOptions;
 
   const paginationOptions = [
@@ -49,6 +52,15 @@ const Table = ({ data = [], options }: TableProps) => {
     { value: 50, label: '50' },
     { value: 100, label: '100' },
   ];
+
+  /* Data class instanciation ********************************************************************/
+
+  const InitialData = new Data(data, categories);
+  // Get the dictionary for binary search
+  const dictionary = InitialData.dictionary;
+  // Get the placeholder object that determine the cells width
+  const placeholderEntries = InitialData.placeholderEntries;
+  console.log(placeholderEntries);
 
   /* STATES **************************************************************************************/
 
@@ -70,12 +82,6 @@ const Table = ({ data = [], options }: TableProps) => {
   // State depending on the chunks of the data
   const [displayedData, setDisplayedData] = useState(dataChunks[pageIndex]);
 
-  // Building the dictionary for the binary search
-  const dictionary = useMemo(() => {
-    if (!data.length) return;
-    return makeDictionary(data);
-  }, []);
-
   /* HANDLERS ************************************************************************************/
 
   const handleNextPage = () => {
@@ -94,7 +100,7 @@ const Table = ({ data = [], options }: TableProps) => {
   }, 50);
 
   const handleSort: sort = (key, order) => {
-    const tempData = [...data];
+    const tempData = [...currentData];
     sortObjectsArray(tempData, key, order);
     setCurrentData(() => tempData);
   };
@@ -126,19 +132,22 @@ const Table = ({ data = [], options }: TableProps) => {
       return result.indexOf(id) > -1;
     });
     setCurrentData(filteredData);
+    // Changing the page index to 0 in order to display the filtered data correctly
+    setPageIndex(() => 0);
   }, [searchInput]);
 
   useEffect(() => {
     if (!sortBy || !sortOrder) return;
     console.log('Sort Order : ', sortOrder);
     console.log('Sorting by : ', sortBy);
+    handleSort(sortBy, sortOrder);
   }, [sortOrder, sortBy]);
 
   /* TSX *****************************************************************************************/
   return (
     <DataTable>
       <h1>{heading}</h1>
-      <div className="datatable__header">
+      <div className="datatable__tools-top">
         <div className="datatable__pagination-dropdown">
           <label htmlFor="pagination">
             Show{'  '}
@@ -157,20 +166,28 @@ const Table = ({ data = [], options }: TableProps) => {
           </label>
         </div>
       </div>
-      <div className="datatable__body">
-        <table>
-          <thead>
-            <tr>
-              {dataKeys.map((key, index) => {
-                const { title, value, position } = key;
+      <div className="datatable__main">
+        <table className="datatable__main-table">
+          <thead className="datatable__main-header">
+            <tr className="datatable__main-header-row placeholder">
+              {placeholderEntries.map((entry, index) => (
+                <th key={`${index}-${entry}`} className="datatable__heading">
+                  {/*We had a 'W' at the end because it is the widest latin letter*/}
+                  {entry[1]}W
+                </th>
+              ))}
+            </tr>
+            <tr className="datatable__main-header-row">
+              {categories.map((category, index) => {
+                const { title, key, position } = category;
                 if (position !== undefined)
                   return (
                     <TableHeader
                       key={`th-${index}`}
                       title={title}
-                      dataKey={value}
-                      isSorted={sortBy === value}
-                      sortOrder={sortBy === value ? sortOrder : ''}
+                      dataKey={key}
+                      isSorted={sortBy === key}
+                      sortOrder={sortBy === key ? sortOrder : ''}
                       setSortBy={setSortBy}
                       setSortOrder={setSortOrder}
                     />
@@ -178,14 +195,14 @@ const Table = ({ data = [], options }: TableProps) => {
               })}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="datatable__main-body">
             {displayedData &&
               displayedData.map((obj, index) => {
                 return (
                   <Row
                     key={`tr-${index}`}
                     data={obj}
-                    dataKeys={dataKeys}
+                    categories={categories}
                     sortBy={sortBy}
                     isEven={(index + 1) % 2 === 0}
                   />
@@ -194,7 +211,7 @@ const Table = ({ data = [], options }: TableProps) => {
           </tbody>
         </table>
       </div>
-      <div className="datatable__footer">
+      <div className="datatable__tools-bottom">
         <div className="datatable__info">
           <p>
             Showing{' '}
@@ -262,36 +279,39 @@ const TableHeader = (props: {
 
   return (
     <th
-      className=""
+      className="datatable__heading"
       data-issorted={isSorted}
-      data-sort={sortOrder}
       data-key={dataKey}
-      onClick={toggleSort}>
-      {title}
+      onClick={toggleSort}
+      // style={{ width: `${Math.round((entryMaxLength[dataKey] + 1) * 7.5)}px` }}
+    >
+      <span className="datatable__heading-content" data-sort={sortOrder}>
+        {title}
+      </span>
     </th>
   );
 };
 
 const Row = (props: {
   data: data;
-  dataKeys: dataKey[];
+  categories: category[];
   isEven: boolean;
   sortBy: string;
 }) => {
-  const { data, dataKeys, isEven, sortBy } = props;
+  const { data, categories, isEven, sortBy } = props;
 
   return (
-    <tr data-iseven={isEven}>
-      {dataKeys.map((key, index) => {
-        const { value, title, position } = key;
+    <tr data-iseven={isEven} className="datatable__row">
+      {categories.map((category, index) => {
+        const { key, title, position } = category;
         if (position !== undefined) {
           return (
             <Cell
-              key={`td-${value}-${index}`}
-              keyValue={value}
-              entry={data[value]}
+              key={`td-${key}-${index}`}
+              category={key}
+              entry={data[key]}
               title={title}
-              isSorted={sortBy === value}
+              isSorted={sortBy === key}
             />
           );
         }
@@ -303,12 +323,16 @@ const Row = (props: {
 const Cell = (props: {
   entry: string | number;
   title: string;
-  keyValue: string;
+  category: string;
   isSorted: boolean;
 }) => {
-  const { entry, title, keyValue, isSorted } = props;
+  const { entry, title, category, isSorted } = props;
   return (
-    <td data-title={title} data-keyvalue={keyValue} data-issorted={isSorted}>
+    <td
+      className="datatable__cell"
+      data-title={title}
+      data-category={category}
+      data-issorted={isSorted}>
       {entry}
     </td>
   );
@@ -327,13 +351,13 @@ const DataTable = styled.div`
     cursor: pointer;
   }
 
-  .datatable__header {
+  .datatable__tools-top {
     margin: 1rem 0;
     display: flex;
     justify-content: space-between;
   }
 
-  .datatable__body {
+  .datatable__main {
     width: 100%;
     overflow-x: auto;
     padding: 0 0 1rem 0;
@@ -349,15 +373,79 @@ const DataTable = styled.div`
     }
   }
 
-  table {
+  .datatable__main-table {
     border-collapse: collapse;
     text-align: left;
     width: 100%;
+    table-layout: auto;
+    border-spacing: 0;
   }
 
-  th,
-  td {
-    padding: 5px 10px;
+  .datatable__main-body {
+    border-top: solid 1px #000;
+    border-bottom: solid 1px #000;
+  }
+  
+  .datatable__main-header-row.placeholder {
+    transform: scaleX(0);
+    line-height: 0;
+    &>.datatable__heading {
+      padding: 0 8px;
+    }
+  }
+  
+  .datatable__heading {
+    cursor: pointer;
+
+    .datatable__heading-content {
+      position: relative;
+
+      &:before {
+        content: '';
+        position: absolute;
+        width: 9px;
+        height: 9px;
+        background-color: #ccc;
+        clip-path: polygon(50% 25%, 0% 100%, 100% 100%);
+        right: -15px;
+        top: -2px;
+      }
+
+      &:after {
+        content: '';
+        position: absolute;
+        width: 9px;
+        height: 9px;
+        background-color: #ccc;
+        clip-path: polygon(50% 75%, 0 0, 100% 0);
+        right: -15px;
+        bottom: -2px;
+      }
+      &[data-sort='asc'] {
+        &:after {
+          opacity: 0;
+        }
+        &:before {
+          background-color: #7a80dd;
+        }
+      }
+      &[data-sort='desc'] {
+        &:before {
+          opacity: 0;
+        }
+        &:after {
+          background-color: #7a80dd;
+        }
+      }
+    }
+  }
+
+  .datatable__heading {
+    padding: 8px;
+    white-space: nowrap;
+  }
+  .datatable__cell {
+    padding: 4px 8px;
     white-space: nowrap;
   }
 
@@ -365,11 +453,11 @@ const DataTable = styled.div`
     background-color: #eeeeee;
   }
 
-  td[data-issorted='true'] {
-    background-color: rgba(0,0,0,0.05);
+  .datatable__cell[data-issorted='true'] {
+    background-color: rgba(0, 0, 0, 0.05);
   }
 
-  .datatable__footer {
+  .datatable__tools-bottom {
     margin: 1rem 0;
     display: flex;
     justify-content: space-between;
