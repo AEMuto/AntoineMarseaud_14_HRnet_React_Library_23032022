@@ -108,6 +108,7 @@ const Table = ({ data = [], options }: TableProps) => {
   const updateSearchInput = _.debounce((e) => {
     if (!e.target.value.length) {
       setCurrentData(data);
+      setSearchInput(() => '');
       return;
     }
     if (e.target.value.length < 3) return;
@@ -134,6 +135,9 @@ const Table = ({ data = [], options }: TableProps) => {
     setCurrentData(filteredData);
     // Changing the page index to 0 in order to display the filtered data correctly
     setPageIndex(() => 0);
+    // Reset the sort
+    setSortBy(() => '');
+    setSortOrder(() => '');
   }, [searchInput]);
 
   useEffect(() => {
@@ -215,11 +219,12 @@ const Table = ({ data = [], options }: TableProps) => {
         <div className="datatable__info">
           <p>
             Showing{' '}
-            {displayedData &&
-              displayedData.length * (pageIndex + 1) -
+            {displayedData
+              ? displayedData.length * (pageIndex + 1) -
                 displayedData.length +
-                1}{' '}
-            to {displayedData && displayedData.length * (pageIndex + 1)} of{' '}
+                1
+              : '0'}{' '}
+            to {displayedData ? displayedData.length * (pageIndex + 1) : '0'} of{' '}
             {currentData.length} entries
           </p>
         </div>
@@ -244,7 +249,7 @@ const Table = ({ data = [], options }: TableProps) => {
           </span>
           <button
             onClick={handleNextPage}
-            disabled={pageIndex + 1 === dataChunks.length}
+            disabled={pageIndex + 1 === dataChunks.length || !dataChunks.length}
             className="btn datatable__next-page">
             Next
           </button>
@@ -282,9 +287,7 @@ const TableHeader = (props: {
       className="datatable__heading"
       data-issorted={isSorted}
       data-key={dataKey}
-      onClick={toggleSort}
-      // style={{ width: `${Math.round((entryMaxLength[dataKey] + 1) * 7.5)}px` }}
-    >
+      onClick={toggleSort}>
       <span className="datatable__heading-content" data-sort={sortOrder}>
         {title}
       </span>
@@ -385,15 +388,15 @@ const DataTable = styled.div`
     border-top: solid 1px #000;
     border-bottom: solid 1px #000;
   }
-  
+
   .datatable__main-header-row.placeholder {
     transform: scaleX(0);
     line-height: 0;
-    &>.datatable__heading {
+    & > .datatable__heading {
       padding: 0 8px;
     }
   }
-  
+
   .datatable__heading {
     cursor: pointer;
 
