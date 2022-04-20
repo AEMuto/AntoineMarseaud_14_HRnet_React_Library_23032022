@@ -7,6 +7,7 @@ import sortObjectsArray from '../../utils/sortObjecsArray';
 import Data from '../../utils/DataClass';
 import rangedBinarySearch from '../../utils/rangedBinarySearch';
 import removeDiacritics from '../../utils/removeDiacritics';
+import pagination from '../../utils/pagination';
 
 export type category = {
   title: string;
@@ -60,7 +61,6 @@ const Table = ({ data = [], options }: TableProps) => {
   const dictionary = InitialData.dictionary;
   // Get the placeholder object that determine the cells width
   const placeholderEntries = InitialData.placeholderEntries;
-  console.log(placeholderEntries);
 
   /* STATES **************************************************************************************/
 
@@ -117,10 +117,15 @@ const Table = ({ data = [], options }: TableProps) => {
 
   /* EFFECTS *************************************************************************************/
 
+  useEffect(() => {
+    setPageIndex(() => 0);
+  },[selectedPagination])
+
   // Modify the displayed data whether the dataChunks changes (meaning a change in the selected pagination)
   // or the pageIndex diminish or augment (meaning the user has clicked on the next|previous button or has
   // clicked on a page number button).
   useEffect(() => {
+    console.log(dataChunks.length)
     setDisplayedData(dataChunks[pageIndex]);
   }, [dataChunks, pageIndex]);
 
@@ -132,7 +137,7 @@ const Table = ({ data = [], options }: TableProps) => {
       const id = `${obj.id}`;
       return result.indexOf(id) > -1;
     });
-    setCurrentData(filteredData);
+    setCurrentData(() => filteredData);
     // Changing the page index to 0 in order to display the filtered data correctly
     setPageIndex(() => 0);
     // Reset the sort
@@ -140,12 +145,17 @@ const Table = ({ data = [], options }: TableProps) => {
     setSortOrder(() => '');
   }, [searchInput]);
 
+  // Handling the data sorting
   useEffect(() => {
     if (!sortBy || !sortOrder) return;
     console.log('Sort Order : ', sortOrder);
     console.log('Sorting by : ', sortBy);
     handleSort(sortBy, sortOrder);
   }, [sortOrder, sortBy]);
+
+
+
+  //console.log(pagination(5, pageIndex, dataChunks.length));
 
   /* TSX *****************************************************************************************/
   return (
@@ -219,38 +229,46 @@ const Table = ({ data = [], options }: TableProps) => {
         <div className="datatable__info">
           <p>
             Showing{' '}
-            {displayedData
-              ? displayedData.length * (pageIndex + 1) -
-                displayedData.length +
-                1
+            {currentData
+              ? (selectedPagination * (pageIndex + 1) ) - (selectedPagination - 1)
               : '0'}{' '}
-            to {displayedData ? displayedData.length * (pageIndex + 1) : '0'} of{' '}
+            to {currentData ? ((selectedPagination * (pageIndex + 1) ) - (selectedPagination - 1)) + (displayedData?.length - 1 ): '0'} of{' '}
             {currentData.length} entries
           </p>
         </div>
-        <div className="datatable__page-nav">
+        <div className="datatable__pagination-nav">
           <button
+            data-title="Previous"
             onClick={handlePrevPage}
             disabled={pageIndex === 0}
-            className="btn datatable__prev-page">
+            className="btn btn--controls">
             Previous
           </button>
           <span>
-            {dataChunks.map((_, index) => {
+            {pagination(5, pageIndex + 1, dataChunks.length).map((page, index) => {
+              if (typeof page !== 'string') {
+                return (
+                  <button
+                    data-title={page}
+                    key={`page-btn-${index}`}
+                    onClick={handlePickPage}
+                    className={page === pageIndex + 1 ? 'btn btn--pagination current' : 'btn btn--pagination'}>
+                    {page}
+                  </button>
+                );
+              }
               return (
-                <button
-                  key={`page-btn-${index}`}
-                  onClick={handlePickPage}
-                  className={index === pageIndex ? 'btn current' : 'btn'}>
-                  {index + 1}
-                </button>
+                <span key={`page-ellipsis-${index}`} className={'btn btn--ellipsis'}>
+                  {page}
+                </span>
               );
             })}
           </span>
           <button
+            data-title="Next"
             onClick={handleNextPage}
             disabled={pageIndex + 1 === dataChunks.length || !dataChunks.length}
-            className="btn datatable__next-page">
+            className="btn btn--controls">
             Next
           </button>
         </div>
@@ -352,6 +370,9 @@ const DataTable = styled.div`
 
   button {
     cursor: pointer;
+    &:disabled {
+      cursor: auto;
+    }
   }
 
   .datatable__tools-top {
@@ -399,7 +420,8 @@ const DataTable = styled.div`
 
   .datatable__heading {
     cursor: pointer;
-
+    padding: 10.25px 8px;
+    white-space: nowrap;
     .datatable__heading-content {
       position: relative;
 
@@ -442,13 +464,9 @@ const DataTable = styled.div`
       }
     }
   }
-
-  .datatable__heading {
-    padding: 8px;
-    white-space: nowrap;
-  }
+  
   .datatable__cell {
-    padding: 4px 8px;
+    padding: 8.5px 8px;
     white-space: nowrap;
   }
 
@@ -464,11 +482,41 @@ const DataTable = styled.div`
     margin: 1rem 0;
     display: flex;
     justify-content: space-between;
+    align-items: center;
   }
 
+  .btn {
+    font-size: 1rem;
+    background-color: transparent;
+    border: none;
+    padding: 8px;
+    margin: 2px;
+    min-width: 28px;
+    min-height: 28px;
+    border-radius: 5px;
+    position: relative;
+
+    &--pagination:hover {
+      border-color: #6985FC;
+      background-color: #6985FC;
+      color: white;
+      font-weight: 700;
+    }
+    &--controls {
+      min-width: 84px;
+      &:disabled {
+        min-width: 84px;
+      }
+      &:hover:enabled {
+        text-decoration: underline 4px #6985FC;
+        font-weight: 700;
+      }
+    }
+  }
+  
   button.current {
-    border-color: red;
-    background-color: red;
+    border-color: #6985FC;
+    background-color: #6985FC;
     color: white;
     font-weight: 700;
   }

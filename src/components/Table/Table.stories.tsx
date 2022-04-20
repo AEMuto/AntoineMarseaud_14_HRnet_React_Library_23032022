@@ -1,7 +1,8 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import Table from './Table';
-import { categories, employees } from "../../mock/employees_50";
+import { employees } from "../../mock/employees_500";
+import { categories } from "../../mock/categories";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
