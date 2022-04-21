@@ -119,13 +119,13 @@ const Table = ({ data = [], options }: TableProps) => {
 
   useEffect(() => {
     setPageIndex(() => 0);
-  },[selectedPagination])
+  }, [selectedPagination]);
 
   // Modify the displayed data whether the dataChunks changes (meaning a change in the selected pagination)
   // or the pageIndex diminish or augment (meaning the user has clicked on the next|previous button or has
   // clicked on a page number button).
   useEffect(() => {
-    console.log(dataChunks.length)
+    console.log(dataChunks.length);
     setDisplayedData(dataChunks[pageIndex]);
   }, [dataChunks, pageIndex]);
 
@@ -152,8 +152,6 @@ const Table = ({ data = [], options }: TableProps) => {
     console.log('Sorting by : ', sortBy);
     handleSort(sortBy, sortOrder);
   }, [sortOrder, sortBy]);
-
-
 
   //console.log(pagination(5, pageIndex, dataChunks.length));
 
@@ -226,16 +224,22 @@ const Table = ({ data = [], options }: TableProps) => {
         </table>
       </div>
       <div className="datatable__tools-bottom">
+
         <div className="datatable__info">
           <p>
-            Showing{' '}
             {currentData
-              ? (selectedPagination * (pageIndex + 1) ) - (selectedPagination - 1)
+              ? selectedPagination * (pageIndex + 1) - (selectedPagination - 1)
               : '0'}{' '}
-            to {currentData ? ((selectedPagination * (pageIndex + 1) ) - (selectedPagination - 1)) + (displayedData?.length - 1 ): '0'} of{' '}
-            {currentData.length} entries
+            -{' '}
+            {currentData
+              ? selectedPagination * (pageIndex + 1) -
+                (selectedPagination - 1) +
+                (displayedData?.length - 1)
+              : '0'}{' '}
+            of {currentData.length}
           </p>
         </div>
+
         <div className="datatable__pagination-nav">
           <button
             data-title="Previous"
@@ -245,24 +249,32 @@ const Table = ({ data = [], options }: TableProps) => {
             Previous
           </button>
           <span>
-            {pagination(5, pageIndex + 1, dataChunks.length).map((page, index) => {
-              if (typeof page !== 'string') {
+            {pagination(5, pageIndex + 1, dataChunks.length).map(
+              (page, index) => {
+                if (typeof page !== 'string') {
+                  return (
+                    <button
+                      data-title={page}
+                      key={`page-btn-${index}`}
+                      onClick={handlePickPage}
+                      className={
+                        page === pageIndex + 1
+                          ? 'btn btn--pagination current'
+                          : 'btn btn--pagination'
+                      }>
+                      {page}
+                    </button>
+                  );
+                }
                 return (
-                  <button
-                    data-title={page}
-                    key={`page-btn-${index}`}
-                    onClick={handlePickPage}
-                    className={page === pageIndex + 1 ? 'btn btn--pagination current' : 'btn btn--pagination'}>
+                  <span
+                    key={`page-ellipsis-${index}`}
+                    className={'btn btn--ellipsis'}>
                     {page}
-                  </button>
+                  </span>
                 );
-              }
-              return (
-                <span key={`page-ellipsis-${index}`} className={'btn btn--ellipsis'}>
-                  {page}
-                </span>
-              );
-            })}
+              },
+            )}
           </span>
           <button
             data-title="Next"
@@ -420,7 +432,7 @@ const DataTable = styled.div`
 
   .datatable__heading {
     cursor: pointer;
-    padding: 10.25px 8px;
+    padding: 12px 8px;
     white-space: nowrap;
     .datatable__heading-content {
       position: relative;
@@ -464,9 +476,9 @@ const DataTable = styled.div`
       }
     }
   }
-  
+
   .datatable__cell {
-    padding: 8.5px 8px;
+    padding: 10px 8px;
     white-space: nowrap;
   }
 
@@ -484,6 +496,11 @@ const DataTable = styled.div`
     justify-content: space-between;
     align-items: center;
   }
+  
+  .datatable__info {
+
+    
+  }
 
   .btn {
     font-size: 1rem;
@@ -497,8 +514,8 @@ const DataTable = styled.div`
     position: relative;
 
     &--pagination:hover {
-      border-color: #6985FC;
-      background-color: #6985FC;
+      border-color: #6985fc;
+      background-color: #6985fc;
       color: white;
       font-weight: 700;
     }
@@ -508,15 +525,15 @@ const DataTable = styled.div`
         min-width: 84px;
       }
       &:hover:enabled {
-        text-decoration: underline 4px #6985FC;
+        text-decoration: underline 4px #6985fc;
         font-weight: 700;
       }
     }
   }
-  
+
   button.current {
-    border-color: #6985FC;
-    background-color: #6985FC;
+    border-color: #6985fc;
+    background-color: #6985fc;
     color: white;
     font-weight: 700;
   }
