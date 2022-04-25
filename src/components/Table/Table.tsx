@@ -8,6 +8,9 @@ import Data from '../../utils/DataClass';
 import rangedBinarySearch from '../../utils/rangedBinarySearch';
 import removeDiacritics from '../../utils/removeDiacritics';
 import pagination from '../../utils/pagination';
+import Icons from "../../assets/Icons";
+
+const {chevron_left,chevron_right,search} = Icons
 
 export type category = {
   title: string;
@@ -48,10 +51,10 @@ const Table = ({ data = [], options }: TableProps) => {
   } = options ? options : defaultOptions;
 
   const paginationOptions = [
-    { value: 10, label: '10' },
-    { value: 25, label: '25' },
-    { value: 50, label: '50' },
-    { value: 100, label: '100' },
+    { value: 10, label: 'Show 10 entries' },
+    { value: 25, label: 'Show 25 entries' },
+    { value: 50, label: 'Show 50 entries' },
+    { value: 100, label: 'Show 100 entries' },
   ];
 
   /* Data class instanciation ********************************************************************/
@@ -161,15 +164,13 @@ const Table = ({ data = [], options }: TableProps) => {
       <h1>{heading}</h1>
       <div className="datatable__tools-top">
         <div className="datatable__pagination-dropdown">
-          <label htmlFor="pagination">
-            Show{'  '}
+
             <Dropdown
               options={paginationOptions}
               selectedOption={selectedPagination}
               setSelectedOption={setSelectedPagination}
-            />{' '}
-            entries
-          </label>
+            />
+
         </div>
         <div className="datatable__search-input">
           <label htmlFor="search">
@@ -246,9 +247,9 @@ const Table = ({ data = [], options }: TableProps) => {
             onClick={handlePrevPage}
             disabled={pageIndex === 0}
             className="btn btn--controls">
-            Previous
+            {chevron_left}
           </button>
-          <span>
+          <div className="pagination-btn-wrapper">
             {pagination(5, pageIndex + 1, dataChunks.length).map(
               (page, index) => {
                 if (typeof page !== 'string') {
@@ -275,13 +276,13 @@ const Table = ({ data = [], options }: TableProps) => {
                 );
               },
             )}
-          </span>
+          </div>
           <button
             data-title="Next"
             onClick={handleNextPage}
             disabled={pageIndex + 1 === dataChunks.length || !dataChunks.length}
             className="btn btn--controls">
-            Next
+            {chevron_right}
           </button>
         </div>
       </div>
@@ -497,36 +498,56 @@ const DataTable = styled.div`
     align-items: center;
   }
   
-  .datatable__info {
-
-    
+  .datatable__pagination-nav {
+    display: flex;
+    align-items: center;
+    min-width: 310px;
+    .pagination-btn-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+    }
   }
-
+  
   .btn {
     font-size: 1rem;
     background-color: transparent;
     border: none;
-    padding: 8px;
-    margin: 2px;
-    min-width: 28px;
-    min-height: 28px;
-    border-radius: 5px;
-    position: relative;
-
+    
+    &--pagination {
+      padding: 4px;
+      margin: 2px;
+      min-width: 22px;
+      min-height: 22px;
+      border-radius: 5px;
+    }
+    
     &--pagination:hover {
       border-color: #6985fc;
       background-color: #6985fc;
       color: white;
       font-weight: 700;
     }
+    
+    &--ellipsis {
+      margin: 2px;
+      padding: 4px;
+    }
+    
     &--controls {
-      min-width: 84px;
-      &:disabled {
-        min-width: 84px;
+      padding: 5px;
+      margin: 2px;
+      min-width: 26px;
+      min-height: 26px;
+      svg path {
+        fill: #555
       }
-      &:hover:enabled {
-        text-decoration: underline 4px #6985fc;
-        font-weight: 700;
+      &:disabled svg path {
+        fill: #CCC
+      }
+      
+      &:hover:enabled svg path {
+        fill: #6985fc;
       }
     }
   }
