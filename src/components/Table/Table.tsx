@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import Dropdown from '../Dropdown/Dropdown';
+import CustomDropdown from '../Dropdown/Dropdown';
 import * as _ from 'lodash';
 import styled from 'styled-components';
 import sortObjectsArray from '../../utils/sortObjecsArray';
@@ -8,9 +8,9 @@ import Data from '../../utils/DataClass';
 import rangedBinarySearch from '../../utils/rangedBinarySearch';
 import removeDiacritics from '../../utils/removeDiacritics';
 import pagination from '../../utils/pagination';
-import Icons from "../../assets/Icons";
+import Icons from '../../assets/Icons';
 
-const {chevron_left,chevron_right,search} = Icons
+const { chevron_left, chevron_right, search } = Icons;
 
 export type category = {
   title: string;
@@ -118,22 +118,7 @@ const Table = ({ data = [], options }: TableProps) => {
     setSearchInput(removeDiacritics(e.target.value.toLowerCase()));
   }, 500);
 
-  /* EFFECTS *************************************************************************************/
-
-  useEffect(() => {
-    setPageIndex(() => 0);
-  }, [selectedPagination]);
-
-  // Modify the displayed data whether the dataChunks changes (meaning a change in the selected pagination)
-  // or the pageIndex diminish or augment (meaning the user has clicked on the next|previous button or has
-  // clicked on a page number button).
-  useEffect(() => {
-    console.log(dataChunks.length);
-    setDisplayedData(dataChunks[pageIndex]);
-  }, [dataChunks, pageIndex]);
-
-  // Modify the displayed data when the input from the search field changes.
-  useEffect(() => {
+  const launchSearch = _.debounce(() => {
     if (!dictionary || !searchInput) return;
     const result = rangedBinarySearch(dictionary, searchInput);
     const filteredData = data.filter((obj) => {
@@ -146,7 +131,25 @@ const Table = ({ data = [], options }: TableProps) => {
     // Reset the sort
     setSortBy(() => '');
     setSortOrder(() => '');
-  }, [searchInput]);
+  },250)
+
+  const handleSearchKeyDown = _.debounce((e:React.KeyboardEvent) => {
+    if(e.key !== 'Enter') return
+    else launchSearch()
+  },250)
+
+  /* EFFECTS *************************************************************************************/
+
+  useEffect(() => {
+    setPageIndex(() => 0);
+  }, [selectedPagination]);
+
+  // Modify the displayed data whether the dataChunks changes (meaning a change in the selected pagination)
+  // or the pageIndex diminish or augment (meaning the user has clicked on the next|previous button or has
+  // clicked on a page number button).
+  useEffect(() => {
+    setDisplayedData(dataChunks[pageIndex]);
+  }, [dataChunks, pageIndex]);
 
   // Handling the data sorting
   useEffect(() => {
@@ -156,27 +159,25 @@ const Table = ({ data = [], options }: TableProps) => {
     handleSort(sortBy, sortOrder);
   }, [sortOrder, sortBy]);
 
-  //console.log(pagination(5, pageIndex, dataChunks.length));
-
   /* TSX *****************************************************************************************/
   return (
     <DataTable>
       <h1>{heading}</h1>
       <div className="datatable__tools-top">
-        <div className="datatable__pagination-dropdown">
-
-            <Dropdown
-              options={paginationOptions}
-              selectedOption={selectedPagination}
-              setSelectedOption={setSelectedPagination}
-            />
-
-        </div>
-        <div className="datatable__search-input">
-          <label htmlFor="search">
-            Search:{'  '}
-            <input type="text" onChange={updateSearchInput} />
-          </label>
+        <CustomDropdown
+          options={paginationOptions}
+          selectedOption={selectedPagination}
+          setSelectedOption={setSelectedPagination}
+        />
+        <div className="datatable__search">
+          <input
+            className="input input--search"
+            type="text"
+            placeholder="Search..."
+            onChange={updateSearchInput}
+            onKeyDown={handleSearchKeyDown}
+          />
+          <button className="btn btn--search" onClick={launchSearch}>{search}</button>
         </div>
       </div>
       <div className="datatable__main">
@@ -225,7 +226,6 @@ const Table = ({ data = [], options }: TableProps) => {
         </table>
       </div>
       <div className="datatable__tools-bottom">
-
         <div className="datatable__info">
           <p>
             {currentData
@@ -379,6 +379,11 @@ const DataTable = styled.div`
     box-sizing: inherit;
     padding: 0;
     margin: 0;
+    font-family: Inter, sans-serif;
+  }
+
+  h1 {
+    margin: 1.5rem 0;
   }
 
   button {
@@ -389,9 +394,38 @@ const DataTable = styled.div`
   }
 
   .datatable__tools-top {
-    margin: 1rem 0;
+    margin-bottom: 1rem;
     display: flex;
-    justify-content: space-between;
+    min-height: 44px;
+    .datatable__search {
+      display: flex;
+      flex: 1;
+      max-width: 280px;
+      border: 1px solid #BBB;
+      border-radius: 0 5px 5px 0;
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.20);
+    }
+    .input--search {
+      flex:1;
+      width: 100%;
+      margin: 0;
+      border:none;
+      font-size: 0.85rem;
+      padding: 10px 12px 10px 14px;
+      outline: 0;
+    }
+    .btn--search {
+      background-color: #7a80dd;
+      padding: 0 8px;
+      path {
+        fill: #fff;
+      }
+      &:hover {
+        svg {
+          transform: scale(1.1);
+        }
+      }
+    }
   }
 
   .datatable__main {
@@ -484,7 +518,7 @@ const DataTable = styled.div`
   }
 
   [data-iseven='false'] {
-    background-color: #eeeeee;
+    background-color: #eee;
   }
 
   .datatable__cell[data-issorted='true'] {
@@ -497,7 +531,7 @@ const DataTable = styled.div`
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .datatable__pagination-nav {
     display: flex;
     align-items: center;
@@ -505,15 +539,15 @@ const DataTable = styled.div`
     .pagination-btn-wrapper {
       flex: 1;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
     }
   }
-  
+
   .btn {
     font-size: 1rem;
     background-color: transparent;
     border: none;
-    
+
     &--pagination {
       padding: 4px;
       margin: 2px;
@@ -521,31 +555,31 @@ const DataTable = styled.div`
       min-height: 22px;
       border-radius: 5px;
     }
-    
+
     &--pagination:hover {
       border-color: #6985fc;
       background-color: #6985fc;
       color: white;
       font-weight: 700;
     }
-    
+
     &--ellipsis {
       margin: 2px;
       padding: 4px;
     }
-    
+
     &--controls {
       padding: 5px;
       margin: 2px;
       min-width: 26px;
       min-height: 26px;
       svg path {
-        fill: #555
+        fill: #555;
       }
       &:disabled svg path {
-        fill: #CCC
+        fill: #ccc;
       }
-      
+
       &:hover:enabled svg path {
         fill: #6985fc;
       }
