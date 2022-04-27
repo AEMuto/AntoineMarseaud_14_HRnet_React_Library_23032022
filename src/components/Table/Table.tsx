@@ -1,14 +1,14 @@
 import React from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import CustomDropdown from '../Dropdown/Dropdown';
 import * as _ from 'lodash';
 import styled from 'styled-components';
-import sortObjectsArray from '../../utils/sortObjecsArray';
+import Icons from '../../assets/Icons';
+import CustomDropdown from '../Dropdown';
 import Data from '../../utils/DataClass';
+import sortObjectsArray from '../../utils/sortObjecsArray';
 import rangedBinarySearch from '../../utils/rangedBinarySearch';
 import removeDiacritics from '../../utils/removeDiacritics';
 import pagination from '../../utils/pagination';
-import Icons from '../../assets/Icons';
 
 const { chevron_left, chevron_right, search } = Icons;
 
@@ -21,7 +21,7 @@ export type category = {
 export type TablePropsOptions = {
   categories: category[];
   heading?: string;
-  style?: CSSStyleDeclaration;
+
 };
 
 export type data = Record<string, string | number>;
@@ -29,11 +29,16 @@ export type data = Record<string, string | number>;
 export type TableProps = {
   data: Array<data>;
   options?: TablePropsOptions;
+  primaryColor?: string;
 };
+
+type StyledDatatable = {
+  primaryColor: string;
+}
 
 type sort = (key: string, order: 'asc' | 'desc') => void;
 
-const Table = ({ data = [], options }: TableProps) => {
+const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => {
   /* DEFAULT VALUES ******************************************************************************/
 
   const defaultCategories = Object.keys(data[0]).map((key, index) => {
@@ -161,7 +166,7 @@ const Table = ({ data = [], options }: TableProps) => {
 
   /* TSX *****************************************************************************************/
   return (
-    <DataTable>
+    <DataTable primaryColor={primaryColor}>
       <h1>{heading}</h1>
       <div className="datatable__tools-top">
         <CustomDropdown
@@ -372,7 +377,7 @@ const Cell = (props: {
   );
 };
 
-const DataTable = styled.div`
+const DataTable = styled.div<StyledDatatable>`
   *,
   *::before,
   *::after {
@@ -383,7 +388,7 @@ const DataTable = styled.div`
   }
 
   h1 {
-    margin: 1.5rem 0;
+    margin-bottom: 1.5rem;
   }
 
   button {
@@ -403,7 +408,6 @@ const DataTable = styled.div`
       max-width: 280px;
       border: 1px solid #BBB;
       border-radius: 0 5px 5px 0;
-      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.20);
     }
     .input--search {
       flex:1;
@@ -415,7 +419,7 @@ const DataTable = styled.div`
       outline: 0;
     }
     .btn--search {
-      background-color: #7a80dd;
+      background-color: ${({ primaryColor }) => primaryColor};
       padding: 0 8px;
       path {
         fill: #fff;
@@ -469,9 +473,12 @@ const DataTable = styled.div`
     cursor: pointer;
     padding: 12px 8px;
     white-space: nowrap;
+    &:hover, &[data-issorted="true"] {
+      color: ${({ primaryColor }) => primaryColor};
+    }
     .datatable__heading-content {
       position: relative;
-
+      
       &:before {
         content: '';
         position: absolute;
@@ -498,7 +505,7 @@ const DataTable = styled.div`
           opacity: 0;
         }
         &:before {
-          background-color: #7a80dd;
+          background-color: ${({ primaryColor }) => primaryColor};
         }
       }
       &[data-sort='desc'] {
@@ -506,7 +513,7 @@ const DataTable = styled.div`
           opacity: 0;
         }
         &:after {
-          background-color: #7a80dd;
+          background-color: ${({ primaryColor }) => primaryColor};
         }
       }
     }
@@ -528,14 +535,24 @@ const DataTable = styled.div`
   .datatable__tools-bottom {
     margin: 1rem 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    @media (min-width: 720px) {
+      justify-content: space-between;
+    }
+  }
+  
+  .datatable__info {
+    display: none;
+    @media (min-width: 720px) {
+      display: block;
+    }
   }
 
   .datatable__pagination-nav {
     display: flex;
     align-items: center;
-    min-width: 310px;
+    //min-width: 310px;
     .pagination-btn-wrapper {
       flex: 1;
       display: flex;
@@ -557,8 +574,8 @@ const DataTable = styled.div`
     }
 
     &--pagination:hover {
-      border-color: #6985fc;
-      background-color: #6985fc;
+      border-color: ${({ primaryColor }) => primaryColor};
+      background-color: ${({ primaryColor }) => primaryColor};
       color: white;
       font-weight: 700;
     }
@@ -581,15 +598,15 @@ const DataTable = styled.div`
       }
 
       &:hover:enabled svg path {
-        fill: #6985fc;
+        fill: ${({ primaryColor }) => primaryColor};
       }
     }
   }
 
   button.current {
-    border-color: #6985fc;
-    background-color: #6985fc;
+    border-color: ${({ primaryColor }) => primaryColor};
+    background-color: ${({ primaryColor }) => primaryColor};
     color: white;
     font-weight: 700;
   }
-`;
+`

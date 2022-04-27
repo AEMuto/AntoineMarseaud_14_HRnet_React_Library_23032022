@@ -13,22 +13,6 @@ type DropdownProps = {
   setSelectedOption: Dispatch<SetStateAction<any>>;
 };
 
-// const Dropdown = (props: DropdownProps) => {
-//   const { options, selectedOption, setSelectedOption } = props;
-//   return (
-//     <select
-//       id="pagination"
-//       value={selectedOption}
-//       onChange={(e) => setSelectedOption(+e.target.value)}>
-//       {options.map((option) => (
-//         <option key={option.value} value={option.value}>
-//           {option.label}
-//         </option>
-//       ))}
-//     </select>
-//   );
-// };
-
 const CustomDropdown = (props: DropdownProps) => {
   const { options, selectedOption, setSelectedOption } = props;
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -83,7 +67,7 @@ const CustomDropdown = (props: DropdownProps) => {
 
   return (
     <StyledDropdown>
-      <div className="container">
+      <div className={isOptionsOpen ? 'container expanded' : 'container'}>
         <button
           type="button"
           aria-haspopup="listbox"
@@ -124,6 +108,7 @@ const StyledDropdown = styled.div`
   position: relative;
   width: 144px;
   min-width: 144px;
+  
   div.container {
     display: flex;
     flex-direction: column;
@@ -133,7 +118,10 @@ const StyledDropdown = styled.div`
     position: absolute;
     z-index: 1;
     overflow: hidden;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    &.expanded {
+      border-radius: 5px 0 5px 5px;
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+    }
   }
 
   button {
