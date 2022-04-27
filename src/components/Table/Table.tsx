@@ -121,7 +121,7 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
     }
     if (e.target.value.length < 3) return;
     setSearchInput(removeDiacritics(e.target.value.toLowerCase()));
-  }, 500);
+  }, 250);
 
   const launchSearch = _.debounce(() => {
     if (!dictionary || !searchInput) return;
@@ -136,12 +136,12 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
     // Reset the sort
     setSortBy(() => '');
     setSortOrder(() => '');
-  },250)
+  },50)
 
-  const handleSearchKeyDown = _.debounce((e:React.KeyboardEvent) => {
+  const handleSearchInput = _.debounce((e:React.KeyboardEvent) => {
     if(e.key !== 'Enter') return
     else launchSearch()
-  },250)
+  },260)
 
   /* EFFECTS *************************************************************************************/
 
@@ -180,7 +180,7 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
             type="text"
             placeholder="Search..."
             onChange={updateSearchInput}
-            onKeyDown={handleSearchKeyDown}
+            onKeyUp={handleSearchInput}
           />
           <button className="btn btn--search" onClick={launchSearch}>{search}</button>
         </div>
@@ -233,11 +233,11 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
       <div className="datatable__tools-bottom">
         <div className="datatable__info">
           <p>
-            {currentData
+            {displayedData
               ? selectedPagination * (pageIndex + 1) - (selectedPagination - 1)
               : '0'}{' '}
             -{' '}
-            {currentData
+            {displayedData
               ? selectedPagination * (pageIndex + 1) -
                 (selectedPagination - 1) +
                 (displayedData?.length - 1)
