@@ -1,14 +1,14 @@
-import React from 'react';
-import { useEffect, useMemo, useState } from 'react';
-import * as _ from 'lodash';
-import styled from 'styled-components';
-import Icons from '../../assets/Icons';
-import CustomDropdown from '../Dropdown';
-import Data from '../../utils/DataClass';
-import sortObjectsArray from '../../utils/sortObjecsArray';
-import rangedBinarySearch from '../../utils/rangedBinarySearch';
-import removeDiacritics from '../../utils/removeDiacritics';
-import pagination from '../../utils/pagination';
+import React from "react";
+import { useEffect, useMemo, useState } from "react";
+import * as _ from "lodash";
+import styled from "styled-components";
+import Icons from "../../assets/Icons";
+import CustomDropdown from "../Dropdown";
+import Data from "../../utils/DataClass";
+import sortObjectsArray from "../../utils/sortObjecsArray";
+import rangedBinarySearch from "../../utils/rangedBinarySearch";
+import removeDiacritics from "../../utils/removeDiacritics";
+import pagination from "../../utils/pagination";
 
 const { chevron_left, chevron_right, search } = Icons;
 
@@ -36,9 +36,9 @@ type StyledDatatable = {
   primaryColor: string;
 }
 
-type sort = (key: string, order: 'asc' | 'desc') => void;
+type sort = (key: string, order: "asc" | "desc") => void;
 
-const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => {
+const Table = ({ data = [], options, primaryColor = "#7a80dd" }: TableProps) => {
   /* DEFAULT VALUES ******************************************************************************/
 
   const defaultCategories = Object.keys(data[0]).map((key, index) => {
@@ -46,20 +46,20 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
   });
 
   const defaultOptions = {
-    heading: 'Data Table',
-    categories: defaultCategories,
+    heading: "Data Table",
+    categories: defaultCategories
   };
 
   const {
     heading = defaultOptions.heading,
-    categories = defaultOptions.categories,
+    categories = defaultOptions.categories
   } = options ? options : defaultOptions;
 
   const paginationOptions = [
-    { value: 10, label: 'Show 10 entries' },
-    { value: 25, label: 'Show 25 entries' },
-    { value: 50, label: 'Show 50 entries' },
-    { value: 100, label: 'Show 100 entries' },
+    { value: 10, label: "Show 10 entries" },
+    { value: 25, label: "Show 25 entries" },
+    { value: 50, label: "Show 50 entries" },
+    { value: 100, label: "Show 100 entries" }
   ];
 
   /* Data class instanciation ********************************************************************/
@@ -74,17 +74,17 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
 
   const [currentData, setCurrentData] = useState(data);
   const [selectedPagination, setSelectedPagination] = useState(
-    paginationOptions[0].value,
+    paginationOptions[0].value
   );
   const [pageIndex, setPageIndex] = useState(0);
-  const [searchInput, setSearchInput] = useState('');
-  const [sortBy, setSortBy] = useState<string>('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | ''>('');
+  const [searchInput, setSearchInput] = useState("");
+  const [sortBy, setSortBy] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
 
   // Building our chunks of data depending on the selected pagination and current data
   const dataChunks = useMemo(
     () => _.chunk(currentData, selectedPagination),
-    [selectedPagination, currentData],
+    [selectedPagination, currentData]
   );
 
   // State depending on the chunks of the data
@@ -116,7 +116,7 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
   const updateSearchInput = _.debounce((e) => {
     if (!e.target.value.length) {
       setCurrentData(data);
-      setSearchInput(() => '');
+      setSearchInput(() => "");
       return;
     }
     if (e.target.value.length < 3) return;
@@ -134,14 +134,14 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
     // Changing the page index to 0 in order to display the filtered data correctly
     setPageIndex(() => 0);
     // Reset the sort
-    setSortBy(() => '');
-    setSortOrder(() => '');
-  },50)
+    setSortBy(() => "");
+    setSortOrder(() => "");
+  }, 50);
 
-  const handleSearchInput = _.debounce((e:React.KeyboardEvent) => {
-    if(e.key !== 'Enter') return
-    else launchSearch()
-  },260)
+  const handleSearchInput = _.debounce((e: React.KeyboardEvent) => {
+    if (e.key !== "Enter") return;
+    else launchSearch();
+  }, 260);
 
   /* EFFECTS *************************************************************************************/
 
@@ -159,8 +159,8 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
   // Handling the data sorting
   useEffect(() => {
     if (!sortBy || !sortOrder) return;
-    console.log('Sort Order : ', sortOrder);
-    console.log('Sorting by : ', sortBy);
+    console.log("Sort Order : ", sortOrder);
+    console.log("Sorting by : ", sortBy);
     handleSort(sortBy, sortOrder);
   }, [sortOrder, sortBy]);
 
@@ -188,45 +188,45 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
       <div className="datatable__main">
         <table className="datatable__main-table">
           <thead className="datatable__main-header">
-            <tr className="datatable__main-header-row placeholder">
-              {placeholderEntries.map((entry, index) => (
-                <th key={`${index}-${entry}`} className="datatable__heading">
-                  {/*We had a 'W' at the end because it is the widest latin letter*/}
-                  {entry[1]}W
-                </th>
-              ))}
-            </tr>
-            <tr className="datatable__main-header-row">
-              {categories.map((category, index) => {
-                const { title, key, position } = category;
-                if (position !== undefined)
-                  return (
-                    <TableHeader
-                      key={`th-${index}`}
-                      title={title}
-                      dataKey={key}
-                      isSorted={sortBy === key}
-                      sortOrder={sortBy === key ? sortOrder : ''}
-                      setSortBy={setSortBy}
-                      setSortOrder={setSortOrder}
-                    />
-                  );
-              })}
-            </tr>
-          </thead>
-          <tbody className="datatable__main-body">
-            {displayedData &&
-              displayedData.map((obj, index) => {
+          <tr className="datatable__main-header-row placeholder">
+            {placeholderEntries.map((entry, index) => (
+              <th key={`${index}-${entry}`} className="datatable__heading">
+                {/*We had a 'W' at the end because it is the widest latin letter*/}
+                {entry[1]}W
+              </th>
+            ))}
+          </tr>
+          <tr className="datatable__main-header-row">
+            {categories.map((category, index) => {
+              const { title, key, position } = category;
+              if (position !== undefined)
                 return (
-                  <Row
-                    key={`tr-${index}`}
-                    data={obj}
-                    categories={categories}
-                    sortBy={sortBy}
-                    isEven={(index + 1) % 2 === 0}
+                  <TableHeader
+                    key={`th-${index}`}
+                    title={title}
+                    dataKey={key}
+                    isSorted={sortBy === key}
+                    sortOrder={sortBy === key ? sortOrder : ""}
+                    setSortBy={setSortBy}
+                    setSortOrder={setSortOrder}
                   />
                 );
-              })}
+            })}
+          </tr>
+          </thead>
+          <tbody className="datatable__main-body">
+          {displayedData &&
+            displayedData.map((obj, index) => {
+              return (
+                <Row
+                  key={`tr-${index}`}
+                  data={obj}
+                  categories={categories}
+                  sortBy={sortBy}
+                  isEven={(index + 1) % 2 === 0}
+                />
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -235,13 +235,13 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
           <p>
             {displayedData
               ? selectedPagination * (pageIndex + 1) - (selectedPagination - 1)
-              : '0'}{' '}
-            -{' '}
+              : "0"}{" "}
+            -{" "}
             {displayedData
               ? selectedPagination * (pageIndex + 1) -
-                (selectedPagination - 1) +
-                (displayedData?.length - 1)
-              : '0'}{' '}
+              (selectedPagination - 1) +
+              (displayedData?.length - 1)
+              : "0"}{" "}
             of {currentData.length}
           </p>
         </div>
@@ -257,7 +257,7 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
           <div className="pagination-btn-wrapper">
             {pagination(5, pageIndex + 1, dataChunks.length).map(
               (page, index) => {
-                if (typeof page !== 'string') {
+                if (typeof page !== "string") {
                   return (
                     <button
                       data-title={page}
@@ -265,8 +265,8 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
                       onClick={handlePickPage}
                       className={
                         page === pageIndex + 1
-                          ? 'btn btn--pagination current'
-                          : 'btn btn--pagination'
+                          ? "btn btn--pagination current"
+                          : "btn btn--pagination"
                       }>
                       {page}
                     </button>
@@ -275,11 +275,11 @@ const Table = ({ data = [], options, primaryColor = '#7a80dd' }: TableProps) => 
                 return (
                   <span
                     key={`page-ellipsis-${index}`}
-                    className={'btn btn--ellipsis'}>
+                    className={"btn btn--ellipsis"}>
                     {page}
                   </span>
                 );
-              },
+              }
             )}
           </div>
           <button
@@ -303,19 +303,19 @@ const TableHeader = (props: {
   isSorted: boolean;
   sortOrder: string;
   setSortBy: React.Dispatch<React.SetStateAction<string>>;
-  setSortOrder: React.Dispatch<React.SetStateAction<'' | 'asc' | 'desc'>>;
+  setSortOrder: React.Dispatch<React.SetStateAction<"" | "asc" | "desc">>;
 }) => {
   const { title, dataKey, isSorted, sortOrder, setSortBy, setSortOrder } =
     props;
 
   const toggleSort = () => {
     if (!isSorted) {
-      setSortOrder(() => 'asc');
+      setSortOrder(() => "asc");
       setSortBy(() => dataKey);
     } else
-      sortOrder === 'asc'
-        ? setSortOrder(() => 'desc')
-        : setSortOrder(() => 'asc');
+      sortOrder === "asc"
+        ? setSortOrder(() => "desc")
+        : setSortOrder(() => "asc");
   };
 
   return (
@@ -378,13 +378,21 @@ const Cell = (props: {
 };
 
 const DataTable = styled.div<StyledDatatable>`
+
+  font-family: Inter, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+  font-size: 16px;
+  font-weight: 400;
+  scroll-behavior: smooth;
+
   *,
   *::before,
   *::after {
     box-sizing: inherit;
     padding: 0;
     margin: 0;
-    font-family: Inter, sans-serif;
   }
 
   h1 {
@@ -393,6 +401,7 @@ const DataTable = styled.div<StyledDatatable>`
 
   button {
     cursor: pointer;
+
     &:disabled {
       cursor: auto;
     }
@@ -402,28 +411,39 @@ const DataTable = styled.div<StyledDatatable>`
     margin-bottom: 1rem;
     display: flex;
     min-height: 44px;
+    
     .datatable__search {
       display: flex;
+      align-items: center;
+      justify-content: center;
       flex: 1;
       max-width: 280px;
-      border: 1px solid #BBB;
-      border-radius: 0 5px 5px 0;
+      
+      
+      overflow: hidden;
     }
+
     .input--search {
-      flex:1;
+      border: 1px solid #BBB;
+      flex: 1;
       width: 100%;
+      height: 100%;
       margin: 0;
-      border:none;
       font-size: 0.85rem;
       padding: 10px 12px 10px 14px;
       outline: 0;
     }
+
     .btn--search {
+      height: 100%;
       background-color: ${({ primaryColor }) => primaryColor};
-      padding: 0 8px;
+      border: 1px solid ${({ primaryColor }) => primaryColor};
+      padding: 8px;
+      border-radius: 0 5px 5px 0;
       path {
         fill: #fff;
       }
+
       &:hover {
         svg {
           transform: scale(1.1);
@@ -436,12 +456,15 @@ const DataTable = styled.div<StyledDatatable>`
     width: 100%;
     overflow-x: auto;
     padding: 0 0 1rem 0;
+
     &::-webkit-scrollbar {
       height: 8px;
     }
+
     &::-webkit-scrollbar-track {
       background-color: rgba(0, 0, 0, 0);
     }
+
     &::-webkit-scrollbar-thumb {
       background-color: #ccc;
       border-radius: 10px;
@@ -464,6 +487,7 @@ const DataTable = styled.div<StyledDatatable>`
   .datatable__main-header-row.placeholder {
     transform: scaleX(0);
     line-height: 0;
+
     & > .datatable__heading {
       padding: 0 8px;
     }
@@ -473,12 +497,14 @@ const DataTable = styled.div<StyledDatatable>`
     cursor: pointer;
     padding: 12px 8px;
     white-space: nowrap;
+
     &:hover, &[data-issorted="true"] {
       color: ${({ primaryColor }) => primaryColor};
     }
+
     .datatable__heading-content {
       position: relative;
-      
+
       &:before {
         content: '';
         position: absolute;
@@ -500,18 +526,22 @@ const DataTable = styled.div<StyledDatatable>`
         right: -15px;
         bottom: -2px;
       }
+
       &[data-sort='asc'] {
         &:after {
           opacity: 0;
         }
+
         &:before {
           background-color: ${({ primaryColor }) => primaryColor};
         }
       }
+
       &[data-sort='desc'] {
         &:before {
           opacity: 0;
         }
+
         &:after {
           background-color: ${({ primaryColor }) => primaryColor};
         }
@@ -541,7 +571,7 @@ const DataTable = styled.div<StyledDatatable>`
       justify-content: space-between;
     }
   }
-  
+
   .datatable__info {
     display: none;
     @media (min-width: 720px) {
@@ -590,9 +620,11 @@ const DataTable = styled.div<StyledDatatable>`
       margin: 2px;
       min-width: 26px;
       min-height: 26px;
+
       svg path {
         fill: #555;
       }
+
       &:disabled svg path {
         fill: #ccc;
       }
@@ -609,4 +641,4 @@ const DataTable = styled.div<StyledDatatable>`
     color: white;
     font-weight: 700;
   }
-`
+`;

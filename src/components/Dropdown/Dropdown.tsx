@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Dispatch, SetStateAction } from 'react';
 import styled from 'styled-components';
 
@@ -14,7 +14,7 @@ type DropdownProps = {
 };
 
 const CustomDropdown = (props: DropdownProps) => {
-  const { options, selectedOption, setSelectedOption } = props;
+  const { options, setSelectedOption } = props;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
@@ -107,7 +107,6 @@ export default CustomDropdown;
 const StyledDropdown = styled.div`
   position: relative;
   width: 144px;
-  min-width: 144px;
   
   div.container {
     display: flex;
@@ -127,8 +126,11 @@ const StyledDropdown = styled.div`
   button {
     border: none;
     background-color: transparent;
-    width: 120px;
-    padding: 13.5px 12px;
+    width: 144px;
+    height: 42px;
+    line-height: normal;
+    margin: 0;
+    padding: 13px 12px;
     text-align: left;
     font-size: 0.85rem;
     position: relative;
