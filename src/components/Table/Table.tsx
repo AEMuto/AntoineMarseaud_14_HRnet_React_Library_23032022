@@ -159,8 +159,6 @@ const Table = ({ data = [], options, primaryColor = "#7a80dd" }: TableProps) => 
   // Handling the data sorting
   useEffect(() => {
     if (!sortBy || !sortOrder) return;
-    console.log("Sort Order : ", sortOrder);
-    console.log("Sorting by : ", sortBy);
     handleSort(sortBy, sortOrder);
   }, [sortOrder, sortBy]);
 

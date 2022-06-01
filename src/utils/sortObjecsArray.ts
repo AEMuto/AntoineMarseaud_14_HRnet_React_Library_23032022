@@ -38,7 +38,7 @@ const sortObjectsArray = (
         if (order === 'desc') return nextNumber - prevNumber;
         else return prevNumber - nextNumber;
       }
-      // TODO: Street Sort
+      // TODO: Street Sort ?
       // Default sort
       const prevString = removeDiacritics(prevField).toUpperCase();
       const nextString = removeDiacritics(nextField).toUpperCase();
@@ -54,7 +54,6 @@ const sortObjectsArray = (
       );
     }
   });
-  //console.table(data);
   return data;
 };
 

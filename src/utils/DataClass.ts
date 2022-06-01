@@ -14,7 +14,7 @@ class Data {
   makeDictionary(data: Array<data>, categories: category[]) {
     const result: Record<any, any> = {};
     const placeholderEntries: Record<string, string> = {};
-    // console.time('makeDictionary');
+
     data.forEach((obj, index) => {
       for (let key in obj) {
         if (key === 'id') continue;

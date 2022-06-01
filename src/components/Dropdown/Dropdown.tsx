@@ -23,7 +23,6 @@ const CustomDropdown = (props: DropdownProps) => {
   };
 
   const setSelectedThenCloseDropdown = (index: number) => {
-    console.log(index);
     setSelectedIndex(index);
     setSelectedOption(options[index].value);
     setIsOptionsOpen(false);
@@ -85,6 +84,7 @@ const CustomDropdown = (props: DropdownProps) => {
           onKeyDown={handleListKeyDown}>
           {options.map((option, index) => (
             <li
+              key={`option-${index}`}
               id={option.label}
               role="option"
               aria-selected={selectedIndex == index}
