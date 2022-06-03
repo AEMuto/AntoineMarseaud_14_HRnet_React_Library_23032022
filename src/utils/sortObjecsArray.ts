@@ -4,11 +4,22 @@ import patterns from './patterns';
 
 const { date: datePattern, onlyNumbers: onlyNumbersPattern } = patterns;
 
+/**
+ * Sort implementation with a custom compare function.
+ * Created mostly to handle cases where the entry is a string that could
+ * be parsed as a number and therefore sorted as one.
+ * If it is a string containing letters we remove its diacritics if there is any
+ * and sort it.
+ * @param {Array<data>} data Our array of objects
+ * @param {string} key The object's key by which we wish to sort the array
+ * @param {"desc" | "asc"} order Our desired sort order
+ * @returns {Array<data>} The sorted array
+ */
 const sortObjectsArray = (
   data: Array<data>,
   key: string,
   order: 'desc' | 'asc' = 'desc',
-) => {
+): Array<data> => {
   //console.table(data);
   data.sort((prev, next) => {
     const prevField = prev[key];
@@ -21,7 +32,7 @@ const sortObjectsArray = (
     }
     // Fields are string
     else if (typeof prevField === 'string' && typeof nextField === 'string') {
-      // Fields contain only a date
+      // Fields contain only a date: we parse it and sort it as a number
       if (prevField.match(datePattern) && nextField.match(datePattern)) {
         const prevDate = Date.parse(prevField);
         const nextDate = Date.parse(nextField);

@@ -13,6 +13,14 @@ type DropdownProps = {
   setSelectedOption: Dispatch<SetStateAction<any>>;
 };
 
+/**
+ * A custom dropdown component, with ul + li instead of
+ * select + option. It makes the styling easier, and the
+ * accessibility is handled by aria attributes.
+ * Made specifically for the Table component.
+ * @param props
+ * @constructor
+ */
 const CustomDropdown = (props: DropdownProps) => {
   const { options, setSelectedOption } = props;
   const [selectedIndex, setSelectedIndex] = useState(0);

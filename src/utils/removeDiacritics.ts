@@ -174,7 +174,13 @@ for (let i=0; i < defaultDiacriticsRemovalMap .length; i++){
   }
 }
 
-function removeDiacritics(str:string) {
+/**
+ * Take a string and return that string without diacritics.
+ * Example: removeDiacritics("Renée") > expected return value: "Renee"
+ * @param {string} str
+ * @returns {string}
+ */
+function removeDiacritics(str:string): string {
   return str.replace(/[^\u0000-\u007E]/g, function(a){
     return diacriticsMap[a] || a;
   });

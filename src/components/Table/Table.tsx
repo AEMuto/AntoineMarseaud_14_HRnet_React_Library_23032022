@@ -38,9 +38,18 @@ type StyledDatatable = {
 
 type sort = (key: string, order: "asc" | "desc") => void;
 
-const Table = ({ data = [], options, primaryColor = "#7a80dd" }: TableProps) => {
-  /* DEFAULT VALUES ******************************************************************************/
 
+/**
+ * The DataTable component that emulate the features of the old jquery one.
+ * @param {Array<data>} data
+ * @param {TablePropsOptions | undefined} options
+ * @param {string | undefined} primaryColor
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const Table = ({ data = [], options, primaryColor = "#7a80dd" }: TableProps): JSX.Element => {
+  /* DEFAULT VALUES ******************************************************************************/
+  // If there is no options object prop we make a default one there
   const defaultCategories = Object.keys(data[0]).map((key, index) => {
     return { title: key, key, position: index };
   });
@@ -67,7 +76,7 @@ const Table = ({ data = [], options, primaryColor = "#7a80dd" }: TableProps) => 
   const InitialData = new Data(data, categories);
   // Get the dictionary for binary search
   const dictionary = InitialData.dictionary;
-  // Get the placeholder object that determine the cells width
+  // Get the placeholder object that determine the column width
   const placeholderEntries = InitialData.placeholderEntries;
 
   /* STATES **************************************************************************************/
@@ -145,6 +154,8 @@ const Table = ({ data = [], options, primaryColor = "#7a80dd" }: TableProps) => 
 
   /* EFFECTS *************************************************************************************/
 
+  // In the case the user change the selected pagination with the dropdown
+  // we want to reset the page index, to avoid an impossible index
   useEffect(() => {
     setPageIndex(() => 0);
   }, [selectedPagination]);

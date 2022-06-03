@@ -1,7 +1,7 @@
 /**
  * Recherche dichotomique qui à la première occurrence du terme recherché dans le dictionnaire
  * va prendre son index et faire une recherche linéaire
- * sur un intervalle de : indexOccurrence - RANGE à indexOccurrence + RANGE
+ * sur un interval de : indexOccurrence - RANGE à indexOccurrence + RANGE
  * @param {string[][]} dictionary
  * @param {string} query
  * @param {number} low
@@ -12,9 +12,9 @@
 export default function rangedBinarySearch(
   dictionary: string[][],
   query: string,
-  low = 0,
-  high = dictionary.length - 1,
-  RANGE = 5,
+  low: number = 0,
+  high: number = dictionary.length - 1,
+  RANGE: number = 5,
 ): string[] {
   const results: string[] = [];
   while (high >= low) {
@@ -22,8 +22,8 @@ export default function rangedBinarySearch(
     const mid = Math.floor(low + (high - low) / 2);
 
     // Si la chaîne de caractère à l'index du milieu commence par les mêmes caractères que ceux de notre recherche,
-    // on crée un intervalle +10 -10, puis on effectue une recherche linéaire sur le range et
-    // on insère dans le tableau 'results' les ids correspondants, et on retourne 'results"
+    // on crée un interval +RANGE -RANGE, puis on effectue une recherche linéaire sur cet interval et
+    // on insère dans le tableau 'results' les ids correspondants, et on retourne 'results'
     if (dictionary[mid][0].startsWith(query)) {
       const start = mid - RANGE < 0 ? 0 : mid - RANGE;
       const end =
@@ -39,7 +39,7 @@ export default function rangedBinarySearch(
     }
 
     if (query < dictionary[mid][0]) {
-      // Notre chaîne de caractère recherchée est inférieur, c'est à dire
+      // Notre chaîne de caractère recherchée est inférieur, c'est-à-dire
       // qu'elle se trouve alphabétiquement plus haut dans le dictionnaire (à gauche
       // si on se le représente comme un livre). Donc la nouvelle limite supérieure
       // est l'index du milieu -1 (on se débarrasse de la partie droite).
