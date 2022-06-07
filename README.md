@@ -24,10 +24,16 @@ It also can improve our exchange with the design team.
 - Publish the package.
 
 ## How to use
+
 ### Users
+
 #### Installing and using the package in your project.
 
-`npm i PACKAGE_NAME` where `PACKAGE_NAME` is for now : `antoinemarseaud_14_hrnet_react_library_23032022`.
+At the root of your current project enter the following snippet in your cli.
+
+````shell
+npm i antoinemarseaud_14_hrnet_react_library
+`````
 
 Then you can import the components in your jsx/tsx files.
 
@@ -36,17 +42,20 @@ Then you can import the components in your jsx/tsx files.
 Currently, `COMPONENT_NAME` has one possible value, which is `Table`, so it will actually look like this :
 
 ````jsx
-import Table from 'antoinemarseaud_14_hrnet_react_library_23032022'
+import Table from 'antoinemarseaud_14_hrnet_react_library'
+import data from './data.js'
 
-const MyAwesomeComponent = (data) => {
+const MyAwesomeTable = () => {
     return <Table data={data} />
 }
 ````
-#### The \<Table /> component
-
-This component has one required prop and two optional props.
-
 ---
+
+#### Use case : The \<Table /> component
+
+This component has the following props.
+
+
  1. `data` which is **required** and must be an array of objects. As of the following example:
 
 ````jsx
@@ -60,7 +69,7 @@ const VehiclesTable = () => {
     return <Table data={companyVehicles} />
 }
 ````
----
+
  2. `options` which is optional and is an object containing the keys:
     - `categories`, an _array_ of category objects. There should be one category for each column that you have. These object should have the following keys:
       - `title`, a _string_, that will be displayed as the column heading.
@@ -88,7 +97,7 @@ const VehiclesTable = () => {
     />
 }
 ````
----
+
  3. `primaryColor`, a string that must be a valid ccs value for the color property.
 
 ````jsx
@@ -102,11 +111,34 @@ const VehiclesTable = () => {
     />
 }
 ````
-
+---
 ### Dev
 
-> **Publish Note**\
-> `PACKAGE_NAME` is defined in the `package.json` at the field `"name"`.\
-> The field is currently `@AEMuto/antoinemarseaud_14_hrnet_react_library_23032022`.\
-> It follows the syntax "@GITHUB_USERNAME/REPOSITORY_NAME".\
-> Keep this in mind when you fork this repository.
+To participate in the development of this library you can do:
+
+```shell
+git clone "https://github.com/AEMuto/AntoineMarseaud_14_HRnet_React_Library_23032022"
+cd AntoineMarseaud_14_HRnet_React_Library_23032022
+nvm use 16
+npm install
+```
+
+Once you have installed this project you will be able to run:
+```shell
+npm run storybook
+```
+Which will start the local dev server for storybook, where you can access and watch the components and their different versions.
+You can use what has been already done as a model to develop more components.
+
+Once you are satisfied with your progress `git push` to share your branch with the remote repository and open a pull request.
+
+In the case you have forked this repository to develop your own library of react components, you will want to create your own package, which is possible with the following commands
+```shell
+# Compile the library from /src to /dist
+npm run rollup
+# Then publish it with your npmjs.org credentials
+npm login
+npm publish
+```
+
+The last npm script you should be aware of is `npm run test` which will launch jest and run the tests (provided you wrote them).
