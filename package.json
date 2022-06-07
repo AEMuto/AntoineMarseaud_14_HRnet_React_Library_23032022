@@ -3,7 +3,7 @@
   "repository": "https://github.com/AEMuto/AntoineMarseaud_14_HRnet_React_Library_23032022",
   "private": false,
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/AEMuto"
+    "@AEMuto:registry": "https://npm.pkg.github.com"
   },
   "version": "0.0.9",
   "description": "Components library for HRNet's internal tool",
