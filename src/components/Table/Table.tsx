@@ -40,10 +40,11 @@ type sort = (key: string, order: "asc" | "desc") => void;
 
 
 /**
- * The DataTable component that emulate the features of the old jquery one.
- * @param {Array<data>} data
- * @param {TablePropsOptions | undefined} options
- * @param {string | undefined} primaryColor
+ * The Table component that emulates the features of the DataTable jQuery plugin.
+ * For further information look the README.MD at https://github.com/AEMuto/AntoineMarseaud_14_HRnet_React_Library_23032022
+ * @param {Array<data>} data is required and should be an array of objects. Where each object should have the same keys. The value associated to those keys should be either string or number.
+ * @param {TablePropsOptions | undefined} options is an optional prop which is an object containing the categories objects' array and the title for the Table.
+ * @param {string | undefined} primaryColor is an optional prop for changing the accent color of the Table.
  * @returns {JSX.Element}
  * @constructor
  */
