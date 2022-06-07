@@ -2,7 +2,10 @@
   "name": "@AEMuto/antoinemarseaud_14_hrnet_react_library_23032022",
   "repository": "https://github.com/AEMuto/AntoineMarseaud_14_HRnet_React_Library_23032022",
   "private": false,
-  "version": "0.0.11",
+  "publishConfig": {
+    "@AEMuto:registry": "https://npm.pkg.github.com"
+  },
+  "version": "0.0.13",
   "description": "Components library for HRNet's internal tool",
   "scripts": {
     "rollup": "rollup -c",
