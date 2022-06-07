@@ -1,5 +1,6 @@
 {
   "name": "@AEMuto/antoinemarseaud_14_hrnet_react_library_23032022",
+  "repository": "https://github.com/AEMuto/AntoineMarseaud_14_HRnet_React_Library_23032022",
   "private": false,
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/AEMuto"
